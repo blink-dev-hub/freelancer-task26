@@ -1,0 +1,37 @@
+name: 401_exchanger/401_bl_ci-cd
+on:
+  push:
+env:
+  NUGET_API_PASSWORD: "${{ secrets.NUGET_API_PASSWORD }}"
+  NUGET_SOURCEURL_STABLE: https://artifactory-na.honeywell.com/artifactory/api/nuget/uop-msd-nuget-stable-local
+  NUGET_SOURCEURL_UNSTABLE: https://artifactory-na.honeywell.com/artifactory/api/nuget/uop-msd-nuget-unstable-local
+  MSBUILD: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe"'
+  Nuget: '"C:\GithubAction\NuGet.exe"'
+  VSCodeCoverage: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\TestAgent\Team Tools\Dynamic Code Coverage Tools\CodeCoverage.exe"'
+  build_config: Release
+  iis_site_name: 401_bl_TEST
+  msdeploy: '"C:\Program Files (x86)\IIS\Microsoft Web Deploy V3\msdeploy.exe"'
+  proj_build_temp: Publish
+  vstest: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\TestAgent\Common7\IDE\Extensions\TestPlatform\vstest.console.exe"'
+  gitusername: kumarranjeet44
+  gituserpassword: "${{ secrets.GIT_PAT  }}"
+
+
+jobs:
+  Build-401-BL-Continuous-Integration:
+    runs-on: self-hosted
+    if: true # set if condition to false to skip the current job this is releas branch changes, First commit 06 branch
+    defaults:
+      run:
+        shell: cmd
+    steps:
+    - uses: actions/checkout@v4.1.0
+      with: 
+        fetch-depth: 0
+        persist-credentials: true
+    - name: Reset build agent
+      run: dotnet build-server shutdown
+    - name: Restore CICD Tools
+      run: dotnet tool restore            
+    - name: Build and Tests
+      run: dotnet cake --do=full --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }}
