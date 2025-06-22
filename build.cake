@@ -174,27 +174,54 @@ Task("Tagmaster").Does(() => {
     GitTag(workingDir, branchTag);
     //Push tag to origin
     Information($"Pushing Tag to origin");
-    var originUrl = "origin";
-    // Push the tag to the remote repository
-    var pushTagResult = StartProcess("git", new ProcessSettings
-    {
-        Arguments = new ProcessArgumentBuilder()
-            .Append("push")
-            .Append(originUrl)
-            .Append(branchTag),
-        RedirectStandardOutput = true,
-        RedirectStandardError = true
-    });
+    
+    string remoteUrl;
+    int exitCode = StartProcess("git", new ProcessSettings{
+        Arguments = "config --get remote.origin.url",
+        RedirectStandardOutput = true
+    }, out IEnumerable<string> remoteUrlOutput);
 
-    // Log output for debugging
-    if (pushTagResult != 0)
+    if(exitCode != 0 || !remoteUrlOutput.Any()){
+        throw new Exception("Could not get remote origin URL");
+    }
+    remoteUrl = remoteUrlOutput.First();
+
+    var authenticatedUrl = remoteUrl.Replace("https://", $"https://{gitUserName}:{gitUserPassword}@");
+
+    var pushArguments = new ProcessArgumentBuilder()
+            .Append("push")
+            .AppendQuoted(authenticatedUrl)
+            .Append(branchTag);
+
+    var processSettings = new ProcessSettings
+    {
+        Arguments = pushArguments,
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+        NoWindow = true
+    };
+    
+    Information($"Executing: git {processSettings.Arguments.Render()}");
+
+    string stdOut = "";
+    string stdErr = "";
+    
+    exitCode = StartProcess("git", processSettings, out var redirectedStandardOutput, out var redirectedStandardError);
+
+    stdOut = string.Join(Environment.NewLine, redirectedStandardOutput);
+    stdErr = string.Join(Environment.NewLine, redirectedStandardError);
+
+    if (exitCode != 0)
     {
         Error("Failed to push tag to origin.");
-        Environment.Exit(1);
+        Error("StdOut: " + stdOut);
+        Error("StdErr: " + stdErr);
+        throw new Exception("Failed to push tag.");
     }
     else
     {
         Information("Tag successfully pushed to origin.");
+        Information("StdOut: " + stdOut);
     }
 });
 
