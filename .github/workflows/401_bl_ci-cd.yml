@@ -20,7 +20,7 @@ env:
 jobs:
   Build-401-BL-Continuous-Integration:
     runs-on: self-hosted
-    if: true # set if condition to false to skip the current job this is releas branch changes, 4th commit on dev
+    if: true # set if condition to false to skip the current job this is releas branch changes, 5th commit on dev
     defaults:
       run:
         shell: cmd
