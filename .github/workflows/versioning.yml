@@ -1,3 +1,13 @@
+mode: ContinuousDelivery
+branches:
+  master:
+    regex: ^master$
+    tag: ''
+    increment: Minor
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
+    is-mainline: true
+
 name: Semantic Versioning
 
 on:
