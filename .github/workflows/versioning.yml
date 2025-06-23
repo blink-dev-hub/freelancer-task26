@@ -1,13 +1,3 @@
-mode: ContinuousDelivery
-branches:
-  master:
-    regex: ^master$
-    tag: ''
-    increment: Minor
-    prevent-increment-of-merged-branch-version: true
-    track-merge-target: false
-    is-mainline: true
-
 name: Semantic Versioning
 
 on:
@@ -23,6 +13,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -39,11 +31,15 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0.11.0
 
       - name: Output calculated version
-        run: echo "Version: ${{ steps.gitversion.outputs.semVer }}"
+        run: |
+          echo "Calculated version: ${{ steps.gitversion.outputs.semVer }}"
+          echo "Major version: ${{ steps.gitversion.outputs.major }}"
+          echo "Minor version: ${{ steps.gitversion.outputs.minor }}"
+          echo "Patch version: ${{ steps.gitversion.outputs.patch }}"
 
       - name: Create Git Tag
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git tag v${{ steps.gitversion.outputs.semVer }}
-          git push origin v${{ steps.gitversion.outputs.semVer }}
+          git tag -a "v${{ steps.gitversion.outputs.semVer }}" -m "Release version ${{ steps.gitversion.outputs.semVer }}"
+          git push origin "v${{ steps.gitversion.outputs.semVer }}"

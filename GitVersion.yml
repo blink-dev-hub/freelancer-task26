@@ -1,22 +1,43 @@
 assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-format: '{Major}.{Minor}.{Patch}.{CommitsSinceVersionSource}'
-mode: ContinuousDeployment
+mode: ContinuousDelivery
+next-version: 1.0.0
+major-version-bump-message: "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?(!:|:.*\\n\\n((.+\\n)+\\n)?BREAKING CHANGE:\\s.+)"
+minor-version-bump-message: "^(feat)(\\([\\w\\s-]*\\))?:"
+patch-version-bump-message: "^(build|chore|ci|docs|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?:"
 branches:
   master:
+    regex: ^master$
     mode: ContinuousDelivery
-  bugfix:
+    tag: ''
+    increment: Patch
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
+    source-branches: []
+    tracks-release-branches: true
+    is-release-branch: false
+    is-mainline: true
+    pre-release-weight: 55000
+  feature:
+    regex: ^features?[/-]
+    mode: ContinuousDelivery
     tag: useBranchName
     increment: Inherit
     prevent-increment-of-merged-branch-version: false
     track-merge-target: false
-    regex: ^bugfix(es)?[/-]
-    source-branches:
-    - develop
-    - master
-    - release
-    - feature
-    - support
-    - hotfix
+    source-branches: ['master']
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: false
+    pre-release-weight: 30000
+  hotfix:
+    regex: ^hotfix(es)?[/-]
+    mode: ContinuousDelivery
+    tag: beta
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    source-branches: ['master']
     tracks-release-branches: false
     is-release-branch: false
     is-mainline: false
