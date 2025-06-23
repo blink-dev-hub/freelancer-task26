@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -29,10 +29,9 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0.11.0
 
       - name: Output calculated version
-        run: |
-          echo "GitVersion: ${{ steps.gitversion.outputs.fullSemVer }}"
+        run: echo "Version: ${{ steps.gitversion.outputs.semVer }}"
 
-      - name: Create Tag
+      - name: Create Git Tag
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
