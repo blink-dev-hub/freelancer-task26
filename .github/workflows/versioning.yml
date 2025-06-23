@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  version:
+  versioning:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,7 +24,7 @@ jobs:
         with:
           versionSpec: '5.x'
 
-      - name: Run GitVersion
+      - name: Execute GitVersion
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0.11.0
 
